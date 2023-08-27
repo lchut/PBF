@@ -6,7 +6,7 @@ __global__ void updateParticles(Vec3* position, Vec3* velocity, Vec3* oldPositio
     unsigned int idx = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x + threadIdx.x);
     if (idx >= nParticles) { return; }
     oldPosition[idx] = position[idx];
-    velocity[idx] += dt * Vec3(0.0f, -9.80f, 0.0f);
+    velocity[idx] += dt * Vec3(0.0f, -49.0f, 0.0f);
     position[idx] += dt * velocity[idx];
     BoundParticle(position[idx], *boundary);
 
@@ -208,7 +208,7 @@ __global__ void calculateCurl(Vec3* curl, const Vec3* position, const Vec3* velo
     int neighborsCnt = pNeighbors[MAX_NEIGHBOR];
     for (int j = 0; j < neighborsCnt; ++j) {
         int nid = pNeighbors[j];
-        Vec3 vij = velocity[idx] - velocity[nid];
+        Vec3 vij = velocity[nid] - velocity[idx];
         pCurl += cross(vij, WspikyGrad(position[idx] - position[nid], h));
     }
     curl[idx] = pCurl;
@@ -229,7 +229,7 @@ __global__ void calculateVorticityAndViscosity(Vec3* vorticity ,Vec3* viscosity,
         Vec3 vij = velocity[idx] - velocity[nid];
         Vec3 r = position[idx] - position[nid];
         pViscosity -= vij * Wpoly6(r, h);
-        eta += length(curl[nid]) * Wpoly6(r, h);
+        eta += length(curl[nid]) * WspikyGrad(position[idx] - position[nid], h);
     }
     if (fabsf(length(eta)) > 1e-3) {
         eta = normalize(eta);

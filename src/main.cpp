@@ -3,7 +3,7 @@
 int main(int argc, char* argv[]) {
     RenderApp app;
     try {
-        int sceneIdx = 0;
+        int sceneIdx = 4;
         int renderMode = 0;
         if (argc == 2) {
             sceneIdx = std::stoi(argv[1]);
